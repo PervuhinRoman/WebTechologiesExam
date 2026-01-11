@@ -58,26 +58,37 @@ function displayCourses() {
         return;
     }
 
-    coursesContainer.innerHTML = coursesToShow.map(course => `
+    coursesContainer.innerHTML = coursesToShow.map(course => {
+        const totalHours = course.total_length * course.week_length;
+        const totalPrice = totalHours * course.course_fee_per_hour;
+
+        return `
         <div class="col-md-6 col-lg-4">
             <div class="course-card" data-course-id="${course.id}">
                 <div class="course-header">
                     <h3 class="course-title">${course.name}</h3>
-                    <span class="course-level ${course.level}">
-                        ${getLevelLabel(course.level)}
+                    <span class="course-level ${course.level.toLowerCase()}">
+                        ${course.level}
                     </span>
                 </div>
+                <p class="course-teacher">
+                    <strong>Преподаватель:</strong> ${course.teacher}
+                </p>
                 <p class="course-description">
-                    ${course.description || 'Описание курса'}
+                    ${course.description}
                 </p>
                 <div class="course-info">
                     <div class="course-info-item">
                         <strong>Длительность:</strong> 
-                        ${course.duration || 'не указана'}
+                        ${course.total_length} недель × ${course.week_length} ч/нед
                     </div>
                     <div class="course-info-item">
-                        <strong>Цена:</strong> 
-                        ${course.price ? course.price + ' ₽' : 'уточняйте'}
+                        <strong>Всего часов:</strong> 
+                        ${totalHours} часов
+                    </div>
+                    <div class="course-info-item">
+                        <strong>Стоимость:</strong> 
+                        ${totalPrice.toLocaleString('ru-RU')} ₽
                     </div>
                 </div>
                 <button class="btn btn-primary w-100 select-course-btn" 
@@ -86,7 +97,8 @@ function displayCourses() {
                 </button>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 
     document.querySelectorAll('.select-course-btn').forEach(btn => {
         btn.addEventListener('click', handleCourseSelect);
@@ -178,6 +190,22 @@ async function displayCourseDetails(courseId) {
             return;
         }
 
+        const totalHours = course.total_length * course.week_length;
+        const totalPrice = totalHours * course.course_fee_per_hour;
+
+        const startDatesHtml = course.start_dates
+            .map(date => {
+                const d = new Date(date);
+                return `<li>${d.toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}</li>`;
+            })
+            .join('');
+
         courseDetailsContainer.innerHTML = `
             <div class="course-details-card">
                 <div class="row">
@@ -186,21 +214,38 @@ async function displayCourseDetails(courseId) {
                         <p class="course-details-level">
                             <strong>Уровень:</strong> 
                             <span class="badge bg-secondary">
-                                ${getLevelLabel(course.level)}
+                                ${course.level}
                             </span>
                         </p>
+                        <p class="course-details-teacher">
+                            <strong>Преподаватель:</strong> ${course.teacher}
+                        </p>
                         <p class="course-details-description">
-                            ${course.description || 'Описание курса'}
+                            ${course.description}
                         </p>
                         <div class="course-details-info">
                             <div class="info-item">
                                 <strong>Длительность:</strong> 
-                                ${course.duration || 'не указана'}
+                                ${course.total_length} нед × ${course.week_length} ч
                             </div>
                             <div class="info-item">
-                                <strong>Стоимость:</strong> 
-                                ${course.price ? course.price + ' ₽' : 'уточняйте'}
+                                <strong>Всего часов:</strong> 
+                                ${totalHours} часов
                             </div>
+                            <div class="info-item">
+                                <strong>Стоимость за час:</strong> 
+                                ${course.course_fee_per_hour} ₽
+                            </div>
+                            <div class="info-item">
+                                <strong>Общая стоимость:</strong> 
+                                ${totalPrice.toLocaleString('ru-RU')} ₽
+                            </div>
+                        </div>
+                        <div class="course-start-dates">
+                            <strong>Доступные даты начала:</strong>
+                            <ul>
+                                ${startDatesHtml}
+                            </ul>
                         </div>
                     </div>
                     <div class="col-md-4 text-center">
@@ -240,7 +285,8 @@ document.getElementById('courses-search-form')
         filteredCourses = allCourses.filter(course => {
             const nameMatch = !nameSearch ||
                 course.name.toLowerCase().includes(nameSearch);
-            const levelMatch = !levelFilter || course.level === levelFilter;
+            const levelMatch = !levelFilter ||
+                course.level.toLowerCase() === levelFilter.toLowerCase();
             return nameMatch && levelMatch;
         });
 
