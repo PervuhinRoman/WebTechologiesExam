@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - The Tense Times</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/profile.css">
+</head>
+
+<body>
+    <header class="header">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand logo" href="index.html">
+                    <span class="logo-text">The Tense Times</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html#home">Главная</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html#courses">Курсы</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html#about">О нас</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html#contacts">Контакты</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="profile.html">Личный кабинет</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div id="notification-area" class="notification-area"></div>
+
+    <main class="profile-main">
+        <section class="profile-section">
+            <div class="container">
+                <h1 class="profile-title">Личный кабинет</h1>
+
+                <div class="profile-controls">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="orders-search"
+                                placeholder="Поиск по курсу или репетитору">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="orders-sort">
+                                <option value="date-desc">Сначала новые</option>
+                                <option value="date-asc">Сначала старые</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="orders-loading" class="loading-spinner" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                </div>
+
+                <div id="orders-container" class="orders-container">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderDetailsModalLabel">Детали заявки</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="order-details-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editOrderModalLabel">Редактировать заявку</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-order-form">
+                        <input type="hidden" id="edit-order-id">
+
+                        <div class="mb-3">
+                            <label for="edit-full-name" class="form-label">ФИО <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="edit-full-name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit-email" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="edit-email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit-phone" class="form-label">Телефон <span
+                                    class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="edit-phone" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit-date" class="form-label">Дата занятия <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="edit-date" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit-time" class="form-label">Время <span class="text-danger">*</span></label>
+                            <input type="time" class="form-control" id="edit-time" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit-comment" class="form-label">Комментарий</label>
+                            <textarea class="form-control" id="edit-comment" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="save-order-btn">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteOrderModal" tabindex="-1" aria-labelledby="deleteOrderModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteOrderModalLabel">Удалить заявку</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы уверены, что хотите удалить эту заявку?</p>
+                    <p class="text-muted">Это действие нельзя отменить.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contacts" class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5 class="footer-title">The Tense Times</h5>
+                    <p class="footer-text">Современная языковая школа для достижения ваших целей</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5 class="footer-title">Контакты</h5>
+                    <p class="footer-text">
+                        Email: info@tensetimes.ru<br>
+                        Телефон: +7 (495) 123-45-67<br>
+                        Время работы: Пн-Пт 9:00-21:00
+                    </p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5 class="footer-title">Адрес</h5>
+                    <p class="footer-text">
+                        Москва, ул. Большая Семёновская, д. 38<br>
+                        Московский Политехнический Университет
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 The Tense Times. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/mockData.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+
+</html>

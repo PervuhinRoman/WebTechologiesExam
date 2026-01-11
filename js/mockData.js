@@ -148,8 +148,69 @@ const MOCK_TUTORS = [
     }
 ];
 
-let MOCK_ORDERS = [];
-let mockOrderIdCounter = 1;
+let MOCK_ORDERS = [
+    {
+        id: 1,
+        course_id: 1,
+        tutor_id: 1,
+        full_name: 'Иванов Иван Иванович',
+        email: 'ivanov@example.com',
+        phone: '+79161234567',
+        lesson_date: '2026-01-20',
+        lesson_time: '10:00',
+        comment: 'Хочу начать изучение английского с нуля',
+        created_at: '2026-01-10T14:30:00'
+    },
+    {
+        id: 2,
+        course_id: 2,
+        tutor_id: 3,
+        full_name: 'Петрова Мария Сергеевна',
+        email: 'petrova@example.com',
+        phone: '+79167654321',
+        lesson_date: '2026-01-18',
+        lesson_time: '15:00',
+        comment: 'Нужна практика разговорного английского',
+        created_at: '2026-01-11T09:15:00'
+    },
+    {
+        id: 3,
+        course_id: 4,
+        tutor_id: 5,
+        full_name: 'Сидоров Петр Александрович',
+        email: 'sidorov@example.com',
+        phone: '+79169876543',
+        lesson_date: '2026-01-25',
+        lesson_time: '18:00',
+        comment: null,
+        created_at: '2026-01-12T11:45:00'
+    },
+    {
+        id: 4,
+        course_id: 7,
+        tutor_id: 9,
+        full_name: 'Козлова Анна Дмитриевна',
+        email: 'kozlova@example.com',
+        phone: '+79163456789',
+        lesson_date: '2026-01-22',
+        lesson_time: '14:00',
+        comment: 'Готовлюсь к экзамену HSK',
+        created_at: '2026-01-13T16:20:00'
+    },
+    {
+        id: 5,
+        course_id: 3,
+        tutor_id: 4,
+        full_name: 'Смирнов Алексей Владимирович',
+        email: 'smirnov@example.com',
+        phone: '+79165555555',
+        lesson_date: '2026-01-28',
+        lesson_time: '12:00',
+        comment: 'Нужен английский для работы в международной компании',
+        created_at: '2026-01-14T10:00:00'
+    }
+];
+let mockOrderIdCounter = 6;
 
 // Флаг использования mock-данных
 // Установите в false когда API будет доступно
@@ -157,7 +218,7 @@ const USE_MOCK_DATA = true;
 
 async function mockApiRequest(endpoint, options = {}) {
     console.log('Mock API Request:', endpoint, options);
-    
+
     await new Promise(resolve => setTimeout(resolve, 500));
 
     if (endpoint.includes('/courses')) {
@@ -182,7 +243,7 @@ async function mockApiRequest(endpoint, options = {}) {
 
     if (endpoint.includes('/orders')) {
         const orderIdMatch = endpoint.match(/\/orders\/(\d+)/);
-        
+
         if (options.method === 'POST') {
             const newOrder = {
                 id: mockOrderIdCounter++,
@@ -209,7 +270,7 @@ async function mockApiRequest(endpoint, options = {}) {
             const index = MOCK_ORDERS.findIndex(o => o.id === id);
             if (index === -1) throw new Error('Order not found');
             MOCK_ORDERS.splice(index, 1);
-            return {id: id};
+            return { id: id };
         }
 
         if (orderIdMatch) {
