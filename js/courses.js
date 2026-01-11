@@ -11,7 +11,11 @@ async function loadCourses() {
         loadingSpinner.style.display = 'block';
         coursesContainer.innerHTML = '';
 
+        console.log('Loading courses from API...');
         allCourses = await getCourses();
+        console.log('Courses loaded:', allCourses);
+        console.log('Total courses:', allCourses.length);
+
         filteredCourses = [...allCourses];
 
         displayCourses();
@@ -23,7 +27,7 @@ async function loadCourses() {
         coursesContainer.innerHTML = `
             <div class="col-12">
                 <div class="alert alert-danger" role="alert">
-                    Ошибка при загрузке курсов. Попробуйте позже.
+                    Ошибка при загрузке курсов: ${error.message}
                 </div>
             </div>
         `;
@@ -36,6 +40,12 @@ function displayCourses() {
     const startIndex = (currentPage - 1) * coursesPerPage;
     const endIndex = startIndex + coursesPerPage;
     const coursesToShow = filteredCourses.slice(startIndex, endIndex);
+
+    console.log('Displaying courses:', {
+        total: filteredCourses.length,
+        page: currentPage,
+        showing: coursesToShow.length
+    });
 
     if (coursesToShow.length === 0) {
         coursesContainer.innerHTML = `

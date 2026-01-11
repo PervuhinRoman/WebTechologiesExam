@@ -25,13 +25,17 @@ async function apiRequest(endpoint, options = {}) {
     }
 
     try {
+        console.log('API Request:', url);
         const response = await fetch(url, config);
+        console.log('API Response status:', response.status);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        return await response.json();
+        const data = await response.json();
+        console.log('API Response data:', data);
+        return data;
     } catch (error) {
         console.error('API request error:', error);
         throw error;
