@@ -158,9 +158,74 @@ function setupPagination() {
 
 function handleCourseSelect(event) {
     const courseId = event.target.getAttribute('data-course-id');
+    displayCourseDetails(courseId);
     loadTutorsForCourse(courseId);
-    document.getElementById('tutors-section')
+    document.getElementById('selected-course-section')
         .scrollIntoView({ behavior: 'smooth' });
+}
+
+async function displayCourseDetails(courseId) {
+    const courseDetailsContainer =
+        document.getElementById('selected-course-details');
+    const selectedCourseSection =
+        document.getElementById('selected-course-section');
+
+    try {
+        const course = allCourses.find(c => c.id === parseInt(courseId));
+
+        if (!course) {
+            console.error('Course not found:', courseId);
+            return;
+        }
+
+        courseDetailsContainer.innerHTML = `
+            <div class="course-details-card">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h3 class="course-details-title">${course.name}</h3>
+                        <p class="course-details-level">
+                            <strong>Уровень:</strong> 
+                            <span class="badge bg-secondary">
+                                ${getLevelLabel(course.level)}
+                            </span>
+                        </p>
+                        <p class="course-details-description">
+                            ${course.description || 'Описание курса'}
+                        </p>
+                        <div class="course-details-info">
+                            <div class="info-item">
+                                <strong>Длительность:</strong> 
+                                ${course.duration || 'не указана'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Стоимость:</strong> 
+                                ${course.price ? course.price + ' ₽' : 'уточняйте'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="course-details-actions">
+                            <button class="btn btn-outline-secondary btn-sm" 
+                                    onclick="closeCourseDetails()">
+                                Выбрать другой курс
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        selectedCourseSection.style.display = 'block';
+    } catch (error) {
+        console.error('Error displaying course details:', error);
+    }
+}
+
+function closeCourseDetails() {
+    document.getElementById('selected-course-section').style.display = 'none';
+    document.getElementById('tutors-container').innerHTML =
+        '<p class="text-center text-muted">Выберите курс</p>';
+    document.getElementById('courses').scrollIntoView({ behavior: 'smooth' });
 }
 
 document.getElementById('courses-search-form')

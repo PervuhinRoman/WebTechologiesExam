@@ -304,6 +304,65 @@ body {
     background-color: var(--gray-100);
 }
 
+/* Секция выбранного курса */
+.selected-course-section {
+    padding: 60px 0;
+    background-color: var(--white);
+    border-top: 3px solid var(--secondary-color);
+}
+
+.course-details-card {
+    background: var(--gray-100);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.course-details-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.course-details-level {
+    margin-bottom: 1rem;
+}
+
+.course-details-level .badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.course-details-description {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.course-details-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.course-details-info .info-item {
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.course-details-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+.course-details-actions .btn {
+    margin-top: 1rem;
+}
+
 .tutor-card {
     background: var(--white);
     border: 1px solid var(--gray-300);
