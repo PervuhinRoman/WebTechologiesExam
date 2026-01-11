@@ -59,10 +59,15 @@
                 <h2 class="section-title">О нашей школе</h2>
                 <div class="about-content">
                     <p class="about-text">
-                        The Tense Times — это современная языковая школа, где каждый студент находит свой уникальный путь к овладению иностранным языком. Мы верим, что изучение языков открывает двери к новым возможностям, культурам и перспективам.
+                        The Tense Times — это современная языковая школа, где каждый студент находит свой уникальный
+                        путь к овладению иностранным языком. Мы верим, что изучение языков открывает двери к новым
+                        возможностям, культурам и перспективам.
                     </p>
                     <p class="about-text">
-                        Наша миссия — создать вдохновляющую образовательную среду, где студенты не просто учат слова и грамматику, а развивают уверенность в общении, критическое мышление и межкультурную компетентность. Мы стремимся сделать процесс обучения увлекательным, эффективным и доступным для каждого.
+                        Наша миссия — создать вдохновляющую образовательную среду, где студенты не просто учат слова и
+                        грамматику, а развивают уверенность в общении, критическое мышление и межкультурную
+                        компетентность. Мы стремимся сделать процесс обучения увлекательным, эффективным и доступным для
+                        каждого.
                     </p>
                 </div>
             </div>
@@ -77,7 +82,8 @@
                             <div class="benefit-icon">🌍</div>
                             <h3 class="benefit-title">Карьерные возможности</h3>
                             <p class="benefit-text">
-                                Знание иностранных языков открывает двери к международным компаниям и повышает вашу конкурентоспособность на рынке труда.
+                                Знание иностранных языков открывает двери к международным компаниям и повышает вашу
+                                конкурентоспособность на рынке труда.
                             </p>
                         </div>
                     </div>
@@ -86,7 +92,8 @@
                             <div class="benefit-icon">🧠</div>
                             <h3 class="benefit-title">Развитие мозга</h3>
                             <p class="benefit-text">
-                                Изучение языков улучшает память, концентрацию и когнитивные способности, замедляет старение мозга.
+                                Изучение языков улучшает память, концентрацию и когнитивные способности, замедляет
+                                старение мозга.
                             </p>
                         </div>
                     </div>
@@ -95,7 +102,8 @@
                             <div class="benefit-icon">✈️</div>
                             <h3 class="benefit-title">Путешествия</h3>
                             <p class="benefit-text">
-                                Свободное общение на иностранном языке делает путешествия более комфортными, интересными и насыщенными.
+                                Свободное общение на иностранном языке делает путешествия более комфортными, интересными
+                                и насыщенными.
                             </p>
                         </div>
                     </div>
@@ -104,14 +112,138 @@
                             <div class="benefit-icon">🎭</div>
                             <h3 class="benefit-title">Культурное обогащение</h3>
                             <p class="benefit-text">
-                                Погружение в другую культуру через язык расширяет кругозор и помогает лучше понимать мир.
+                                Погружение в другую культуру через язык расширяет кругозор и помогает лучше понимать
+                                мир.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <section id="courses" class="courses-section">
+            <div class="container">
+                <h2 class="section-title">Наши курсы</h2>
+
+                <div class="search-form-container">
+                    <form id="courses-search-form" class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="course-name-search"
+                                placeholder="Поиск по названию курса">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="course-level-filter">
+                                <option value="">Все уровни</option>
+                                <option value="beginner">Начальный</option>
+                                <option value="intermediate">Средний</option>
+                                <option value="advanced">Продвинутый</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Найти</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="courses-loading" class="loading-spinner" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                </div>
+
+                <div id="courses-container" class="row g-4 mt-3">
+                </div>
+
+                <nav aria-label="Навигация по курсам">
+                    <ul class="pagination justify-content-center mt-4" id="courses-pagination">
+                    </ul>
+                </nav>
+            </div>
+        </section>
+
+        <section class="tutors-section">
+            <div class="container">
+                <h2 class="section-title">Наши репетиторы</h2>
+
+                <div class="search-form-container">
+                    <form id="tutors-search-form" class="row g-3">
+                        <div class="col-md-10">
+                            <input type="text" class="form-control" id="tutor-name-search"
+                                placeholder="Поиск репетитора по имени или языку">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Найти</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="tutors-loading" class="loading-spinner" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                </div>
+
+                <div id="tutors-container" class="row g-4 mt-3">
+                    <p class="text-center text-muted">Выберите курс, чтобы увидеть доступных репетиторов</p>
+                </div>
+            </div>
+        </section>
     </main>
+
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderModalLabel">Записаться на занятие</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="order-form">
+                        <input type="hidden" id="order-course-id" name="course_id">
+                        <input type="hidden" id="order-tutor-id" name="tutor_id">
+
+                        <div class="mb-3">
+                            <label for="order-full-name" class="form-label">ФИО <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="order-full-name" name="full_name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order-email" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="order-email" name="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order-phone" class="form-label">Телефон <span
+                                    class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="order-phone" name="phone" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order-date" class="form-label">Желаемая дата занятия <span
+                                    class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="order-date" name="lesson_date" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order-time" class="form-label">Желаемое время <span
+                                    class="text-danger">*</span></label>
+                            <input type="time" class="form-control" id="order-time" name="lesson_time" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order-comment" class="form-label">Комментарий</label>
+                            <textarea class="form-control" id="order-comment" name="comment" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="submit-order-btn">Отправить заявку</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer id="contacts" class="footer">
         <div class="container">
