@@ -367,6 +367,34 @@ body {
     margin-top: 1rem;
 }
 
+.course-details-teacher {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.course-start-dates {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--gray-200);
+}
+
+.course-start-dates ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 0.5rem;
+}
+
+.course-start-dates li {
+    padding: 0.5rem 0;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.course-start-dates li:last-child {
+    border-bottom: none;
+}
+
 .tutor-card {
     background: var(--white);
     border: 1px solid var(--gray-300);
@@ -418,20 +446,28 @@ body {
 .tutor-language {
     color: var(--text-light);
     font-size: 0.9rem;
+    margin: 0;
 }
 
-.tutor-description {
-    color: var(--text-color);
+.tutor-details {
     margin-bottom: 1rem;
     flex-grow: 1;
 }
 
-.tutor-experience {
+.tutor-detail-item {
     font-size: 0.9rem;
-    color: var(--text-light);
-    margin-bottom: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--gray-300);
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.tutor-detail-item:last-child {
+    border-bottom: none;
+}
+
+.tutor-detail-item strong {
+    color: var(--primary-color);
 }
 
 .book-tutor-btn {
