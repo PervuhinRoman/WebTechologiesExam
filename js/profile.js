@@ -64,12 +64,16 @@ function displayOrders() {
                         ${getTutorNameById(order.tutor_id)}
                     </div>
                     <div class="info-row">
-                        <strong>Дата занятия:</strong> 
-                        ${order.lesson_date} в ${order.lesson_time}
+                        <strong>Дата начала:</strong> 
+                        ${order.date_start} в ${order.time_start}
                     </div>
                     <div class="info-row">
-                        <strong>Контакт:</strong> 
-                        ${order.email}
+                        <strong>Продолжительность:</strong> 
+                        ${order.duration} часов
+                    </div>
+                    <div class="info-row">
+                        <strong>Стоимость:</strong> 
+                        ${order.price} ₽
                     </div>
                 </div>
             </div>
@@ -92,15 +96,37 @@ function displayOrders() {
 }
 
 function getCourseNameById(courseId) {
+    if (courseId === 0) return 'Не указан';
     if (typeof MOCK_COURSES === 'undefined') return 'Курс #' + courseId;
     const course = MOCK_COURSES.find(c => c.id === courseId);
     return course ? course.name : 'Неизвестный курс';
 }
 
 function getTutorNameById(tutorId) {
+    if (tutorId === 0) return 'Не указан';
     if (typeof MOCK_TUTORS === 'undefined') return 'Репетитор #' + tutorId;
     const tutor = MOCK_TUTORS.find(t => t.id === tutorId);
     return tutor ? tutor.name : 'Неизвестный репетитор';
+}
+
+function getCourseNameById(courseId) {
+    if (courseId === 0) return 'Не указан';
+    if (typeof MOCK_COURSES === 'undefined') return 'Курс #' + courseId;
+    const course = MOCK_COURSES.find(c => c.id === courseId);
+    return course ? course.name : 'Неизвестный курс';
+}
+
+function getOptionsText(order) {
+    const options = [];
+    if (order.early_registration) options.push('Ранняя регистрация');
+    if (order.group_enrollment) options.push('Групповая запись');
+    if (order.intensive_course) options.push('Интенсивный курс');
+    if (order.supplementary) options.push('Дополнительные материалы');
+    if (order.personalized) options.push('Персонализированный подход');
+    if (order.excursions) options.push('Экскурсии');
+    if (order.assessment) options.push('Оценка знаний');
+    if (order.interactive) options.push('Интерактивные занятия');
+    return options.length > 0 ? options.join(', ') : 'Нет';
 }
 
 function formatDate(dateString) {
@@ -138,31 +164,31 @@ async function viewOrderDetails(orderId) {
                     <span>${getTutorNameById(order.tutor_id)}</span>
                 </div>
                 <div class="detail-row">
-                    <strong>ФИО:</strong>
-                    <span>${order.full_name}</span>
+                    <strong>Дата начала:</strong>
+                    <span>${order.date_start}</span>
                 </div>
                 <div class="detail-row">
-                    <strong>Email:</strong>
-                    <span>${order.email}</span>
+                    <strong>Время начала:</strong>
+                    <span>${order.time_start}</span>
                 </div>
                 <div class="detail-row">
-                    <strong>Телефон:</strong>
-                    <span>${order.phone}</span>
+                    <strong>Продолжительность:</strong>
+                    <span>${order.duration} часов</span>
                 </div>
                 <div class="detail-row">
-                    <strong>Дата занятия:</strong>
-                    <span>${order.lesson_date}</span>
+                    <strong>Количество человек:</strong>
+                    <span>${order.persons}</span>
                 </div>
                 <div class="detail-row">
-                    <strong>Время занятия:</strong>
-                    <span>${order.lesson_time}</span>
+                    <strong>Стоимость:</strong>
+                    <span>${order.price} ₽</span>
                 </div>
-                ${order.comment ? `
                 <div class="detail-row">
-                    <strong>Комментарий:</strong>
-                    <span>${order.comment}</span>
+                    <strong>Дополнительные опции:</strong>
+                    <span>
+                        ${getOptionsText(order)}
+                    </span>
                 </div>
-                ` : ''}
             </div>
         `;
 
@@ -186,12 +212,10 @@ function editOrder(orderId) {
     currentEditOrderId = orderId;
 
     document.getElementById('edit-order-id').value = order.id;
-    document.getElementById('edit-full-name').value = order.full_name;
-    document.getElementById('edit-email').value = order.email;
-    document.getElementById('edit-phone').value = order.phone;
-    document.getElementById('edit-date').value = order.lesson_date;
-    document.getElementById('edit-time').value = order.lesson_time;
-    document.getElementById('edit-comment').value = order.comment || '';
+    document.getElementById('edit-date').value = order.date_start;
+    document.getElementById('edit-time').value = order.time_start;
+    document.getElementById('edit-duration').value = order.duration;
+    document.getElementById('edit-persons').value = order.persons;
 
     const modal = new bootstrap.Modal(
         document.getElementById('editOrderModal')
@@ -203,16 +227,14 @@ async function saveEditedOrder() {
     if (!currentEditOrderId) return;
 
     const orderData = {
-        full_name: document.getElementById('edit-full-name').value.trim(),
-        email: document.getElementById('edit-email').value.trim(),
-        phone: document.getElementById('edit-phone').value.trim(),
-        lesson_date: document.getElementById('edit-date').value,
-        lesson_time: document.getElementById('edit-time').value,
-        comment: document.getElementById('edit-comment').value.trim() || null
+        date_start: document.getElementById('edit-date').value,
+        time_start: document.getElementById('edit-time').value,
+        duration: parseInt(document.getElementById('edit-duration').value),
+        persons: parseInt(document.getElementById('edit-persons').value)
     };
 
-    if (!orderData.full_name || !orderData.email || !orderData.phone ||
-        !orderData.lesson_date || !orderData.lesson_time) {
+    if (!orderData.date_start || !orderData.time_start ||
+        !orderData.duration || !orderData.persons) {
         showNotification('Заполните все обязательные поля', 'error');
         return;
     }
@@ -265,13 +287,15 @@ document.getElementById('orders-search')
         const searchQuery = e.target.value.toLowerCase();
 
         filteredOrders = allOrders.filter(order => {
-            const courseName = getCourseNameById(order.course_id).toLowerCase();
-            const tutorName = getTutorNameById(order.tutor_id).toLowerCase();
-            const fullName = order.full_name.toLowerCase();
+            const courseName = getCourseNameById(order.course_id)
+                .toLowerCase();
+            const tutorName = getTutorNameById(order.tutor_id)
+                .toLowerCase();
+            const dateStart = order.date_start.toLowerCase();
 
             return courseName.includes(searchQuery) ||
                 tutorName.includes(searchQuery) ||
-                fullName.includes(searchQuery);
+                dateStart.includes(searchQuery);
         });
 
         displayOrders();

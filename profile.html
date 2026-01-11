@@ -107,36 +107,27 @@
                         <input type="hidden" id="edit-order-id">
 
                         <div class="mb-3">
-                            <label for="edit-full-name" class="form-label">ФИО <span
-                                    class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="edit-full-name" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="edit-email" class="form-label">Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="edit-email" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="edit-phone" class="form-label">Телефон <span
-                                    class="text-danger">*</span></label>
-                            <input type="tel" class="form-control" id="edit-phone" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="edit-date" class="form-label">Дата занятия <span
+                            <label for="edit-date" class="form-label">Дата начала <span
                                     class="text-danger">*</span></label>
                             <input type="date" class="form-control" id="edit-date" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="edit-time" class="form-label">Время <span class="text-danger">*</span></label>
+                            <label for="edit-time" class="form-label">Время начала <span
+                                    class="text-danger">*</span></label>
                             <input type="time" class="form-control" id="edit-time" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="edit-comment" class="form-label">Комментарий</label>
-                            <textarea class="form-control" id="edit-comment" rows="3"></textarea>
+                            <label for="edit-duration" class="form-label">Продолжительность (часов) <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="edit-duration" min="1" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit-persons" class="form-label">Количество человек <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="edit-persons" min="1" required>
                         </div>
                     </form>
                 </div>
