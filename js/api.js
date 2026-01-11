@@ -2,6 +2,10 @@ const API_BASE_URL = 'https://edu.std-900.ist.mospolytech.ru/api';
 const API_KEY = 'fd0ca332-f6dc-4694-9d19-27e96b8648d0';
 
 async function apiRequest(endpoint, options = {}) {
+    if (typeof USE_MOCK_DATA !== 'undefined' && USE_MOCK_DATA) {
+        return mockApiRequest(endpoint, options);
+    }
+
     const url = `${API_BASE_URL}${endpoint}`;
     const headers = {
         'Content-Type': 'application/json',
