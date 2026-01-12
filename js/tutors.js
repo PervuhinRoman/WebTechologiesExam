@@ -164,13 +164,15 @@ function getInitials(name) {
 }
 
 function handleTutorBooking(event) {
-    const tutorId = event.target.getAttribute('data-tutor-id');
-    const courseId = event.target.getAttribute('data-course-id');
+    const button = event.target;
+    const tutorId = button.getAttribute('data-tutor-id');
+    const courseId = button.getAttribute('data-course-id');
 
     console.log('Opening booking modal for:', { tutorId, courseId });
 
-    document.getElementById('order-tutor-id').value = tutorId;
-    document.getElementById('order-course-id').value = courseId;
+    // Устанавливаем атрибуты на кнопку для передачи в модальное окно
+    button.setAttribute('data-bs-toggle', 'modal');
+    button.setAttribute('data-bs-target', '#orderModal');
 
     const modal = new bootstrap.Modal(
         document.getElementById('orderModal')

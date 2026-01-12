@@ -18,23 +18,31 @@ async function apiRequest(endpoint, options = {}) {
     };
 
     if (options.body && typeof options.body === 'object') {
-        const formData = new FormData();
-        for (const key in options.body) {
-            if (options.body.hasOwnProperty(key)) {
-                formData.append(key, options.body[key]);
-            }
-        }
-        config.body = formData;
-        delete config.headers['Content-Type'];
+        config.body = JSON.stringify(options.body);
     }
 
     try {
-        console.log('API Request:', url);
+        console.log('API Request:', url, config.method || 'GET');
+        if (config.body) {
+            console.log('API Request body:', config.body);
+        }
         const response = await fetch(url, config);
         console.log('API Response status:', response.status);
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            let errorMessage = `HTTP error! status: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                console.log('API Error response:', errorData);
+                errorMessage += ` - ${JSON.stringify(errorData)}`;
+            } catch (e) {
+                const errorText = await response.text();
+                console.log('API Error text:', errorText);
+                if (errorText) {
+                    errorMessage += ` - ${errorText}`;
+                }
+            }
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();

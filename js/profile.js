@@ -5,6 +5,11 @@ let currentDeleteOrderId = null;
 let allCoursesCache = [];
 let allTutorsCache = [];
 
+// Pagination
+const ORDERS_PER_PAGE = 5;
+let currentPage = 1;
+let paginatedOrders = [];
+
 async function loadOrders() {
     const ordersContainer = document.getElementById('orders-container');
     const loadingSpinner = document.getElementById('orders-loading');
@@ -29,6 +34,14 @@ async function loadOrders() {
         console.log('Orders loaded:', allOrders);
 
         filteredOrders = [...allOrders];
+
+        // Применяем начальную сортировку (сначала новые)
+        filteredOrders.sort((a, b) => {
+            const dateA = new Date(a.created_at || 0);
+            const dateB = new Date(b.created_at || 0);
+            return dateB - dateA; // date-desc по умолчанию
+        });
+
         displayOrders();
 
         loadingSpinner.style.display = 'none';
@@ -55,13 +68,20 @@ function displayOrders() {
                 </a>
             </div>
         `;
+        document.getElementById('orders-pagination').style.display = 'none';
         return;
     }
 
-    ordersContainer.innerHTML = filteredOrders.map((order, index) => `
+    // Pagination
+    const totalPages = Math.ceil(filteredOrders.length / ORDERS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ORDERS_PER_PAGE;
+    const endIndex = startIndex + ORDERS_PER_PAGE;
+    paginatedOrders = filteredOrders.slice(startIndex, endIndex);
+
+    ordersContainer.innerHTML = paginatedOrders.map((order) => `
         <div class="order-card">
             <div class="order-header">
-                <span class="order-number">Заявка #${index + 1}</span>
+                <span class="order-number">Заявка #${order.id}</span>
                 <span class="order-date">
                     ${formatDate(order.created_at || new Date())}
                 </span>
@@ -106,6 +126,8 @@ function displayOrders() {
             </div>
         </div>
     `).join('');
+
+    setupPagination(totalPages);
 }
 
 function getCourseNameById(courseId) {
@@ -133,6 +155,97 @@ function getOptionsText(order) {
     return options.length > 0 ? options.join(', ') : 'Нет';
 }
 
+function getDiscountsAndSurcharges(order) {
+    const items = [];
+
+    if (order.early_registration) {
+        items.push({ text: 'Ранняя регистрация', type: 'discount', value: '-10%' });
+    }
+    if (order.group_enrollment) {
+        items.push({ text: 'Групповая запись', type: 'discount', value: '-15%' });
+    }
+    if (order.intensive_course) {
+        items.push({ text: 'Интенсивный курс', type: 'surcharge', value: '+20%' });
+    }
+    if (order.supplementary) {
+        items.push({ text: 'Дополнительные материалы', type: 'surcharge', value: '+2000₽/чел' });
+    }
+    if (order.personalized) {
+        items.push({ text: 'Индивидуальные занятия', type: 'surcharge', value: '+1500₽/нед' });
+    }
+    if (order.excursions) {
+        items.push({ text: 'Культурные экскурсии', type: 'surcharge', value: '+25%' });
+    }
+    if (order.assessment) {
+        items.push({ text: 'Оценка уровня', type: 'surcharge', value: '+300₽' });
+    }
+    if (order.interactive) {
+        items.push({ text: 'Интерактивная платформа', type: 'surcharge', value: '+50%' });
+    }
+
+    return items;
+}
+
+function setupPagination(totalPages) {
+    const paginationNav = document.getElementById('orders-pagination');
+    const paginationList = paginationNav.querySelector('.pagination');
+
+    if (totalPages <= 1) {
+        paginationNav.style.display = 'none';
+        return;
+    }
+
+    paginationNav.style.display = 'block';
+    paginationList.innerHTML = '';
+
+    // Previous button
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `
+        <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+    `;
+    prevLi.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage > 1) {
+            currentPage--;
+            displayOrders();
+        }
+    });
+    paginationList.appendChild(prevLi);
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        li.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentPage = i;
+            displayOrders();
+        });
+        paginationList.appendChild(li);
+    }
+
+    // Next button
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+    nextLi.innerHTML = `
+        <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+    `;
+    nextLi.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage < totalPages) {
+            currentPage++;
+            displayOrders();
+        }
+    });
+    paginationList.appendChild(nextLi);
+}
+
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleString('ru-RU', {
@@ -152,6 +265,37 @@ async function viewOrderDetails(orderId) {
             return;
         }
 
+        const course = allCoursesCache.find(c => c.id === order.course_id);
+        const courseDescription = course ? course.description : 'Описание недоступно';
+
+        const discountsAndSurcharges = getDiscountsAndSurcharges(order);
+
+        let discountsHtml = '';
+        let surchargesHtml = '';
+
+        if (discountsAndSurcharges.length > 0) {
+            const discounts = discountsAndSurcharges.filter(item => item.type === 'discount');
+            const surcharges = discountsAndSurcharges.filter(item => item.type === 'surcharge');
+
+            if (discounts.length > 0) {
+                discountsHtml = `
+                    <div class="alert alert-success mb-2">
+                        <strong>Скидки:</strong><br>
+                        ${discounts.map(d => `${d.text}: ${d.value}`).join('<br>')}
+                    </div>
+                `;
+            }
+
+            if (surcharges.length > 0) {
+                surchargesHtml = `
+                    <div class="alert alert-info mb-2">
+                        <strong>Надбавки и дополнительные услуги:</strong><br>
+                        ${surcharges.map(s => `${s.text}: ${s.value}`).join('<br>')}
+                    </div>
+                `;
+            }
+        }
+
         const detailsBody = document.getElementById('order-details-body');
         detailsBody.innerHTML = `
             <div class="order-details">
@@ -162,6 +306,10 @@ async function viewOrderDetails(orderId) {
                 <div class="detail-row">
                     <strong>Курс:</strong>
                     <span>${getCourseNameById(order.course_id)}</span>
+                </div>
+                <div class="detail-row mb-3">
+                    <strong>Описание курса:</strong>
+                    <p class="mt-1 text-muted">${courseDescription}</p>
                 </div>
                 <div class="detail-row">
                     <strong>Репетитор:</strong>
@@ -183,15 +331,11 @@ async function viewOrderDetails(orderId) {
                     <strong>Количество человек:</strong>
                     <span>${order.persons}</span>
                 </div>
-                <div class="detail-row">
-                    <strong>Стоимость:</strong>
-                    <span>${order.price} ₽</span>
-                </div>
-                <div class="detail-row">
-                    <strong>Дополнительные опции:</strong>
-                    <span>
-                        ${getOptionsText(order)}
-                    </span>
+                ${discountsHtml}
+                ${surchargesHtml}
+                <div class="detail-row mt-3">
+                    <strong>Итоговая стоимость:</strong>
+                    <span class="fs-4 text-primary">${order.price.toLocaleString('ru-RU')} ₽</span>
                 </div>
             </div>
         `;
@@ -206,58 +350,7 @@ async function viewOrderDetails(orderId) {
     }
 }
 
-function editOrder(orderId) {
-    const order = allOrders.find(o => o.id === orderId);
-    if (!order) {
-        showNotification('Заявка не найдена', 'error');
-        return;
-    }
-
-    currentEditOrderId = orderId;
-
-    document.getElementById('edit-order-id').value = order.id;
-    document.getElementById('edit-date').value = order.date_start;
-    document.getElementById('edit-time').value = order.time_start;
-    document.getElementById('edit-duration').value = order.duration;
-    document.getElementById('edit-persons').value = order.persons;
-
-    const modal = new bootstrap.Modal(
-        document.getElementById('editOrderModal')
-    );
-    modal.show();
-}
-
-async function saveEditedOrder() {
-    if (!currentEditOrderId) return;
-
-    const orderData = {
-        date_start: document.getElementById('edit-date').value,
-        time_start: document.getElementById('edit-time').value,
-        duration: parseInt(document.getElementById('edit-duration').value),
-        persons: parseInt(document.getElementById('edit-persons').value)
-    };
-
-    if (!orderData.date_start || !orderData.time_start ||
-        !orderData.duration || !orderData.persons) {
-        showNotification('Заполните все обязательные поля', 'error');
-        return;
-    }
-
-    try {
-        await updateOrder(currentEditOrderId, orderData);
-        showNotification('Заявка успешно обновлена', 'success');
-
-        const modal = bootstrap.Modal.getInstance(
-            document.getElementById('editOrderModal')
-        );
-        modal.hide();
-
-        await loadOrders();
-    } catch (error) {
-        console.error('Error updating order:', error);
-        showNotification('Ошибка при обновлении заявки', 'error');
-    }
-}
+// editOrder и saveEditedOrder перемещены в editOrderLogic.js
 
 function confirmDeleteOrder(orderId) {
     currentDeleteOrderId = orderId;
@@ -302,6 +395,7 @@ document.getElementById('orders-search')
                 dateStart.includes(searchQuery);
         });
 
+        currentPage = 1;
         displayOrders();
     });
 
@@ -320,11 +414,11 @@ document.getElementById('orders-sort')
             }
         });
 
+        currentPage = 1;
         displayOrders();
     });
 
-document.getElementById('save-order-btn')
-    .addEventListener('click', saveEditedOrder);
+// save-order-btn listener перемещён в editOrderLogic.js
 
 document.getElementById('confirm-delete-btn')
     .addEventListener('click', deleteOrderConfirmed);

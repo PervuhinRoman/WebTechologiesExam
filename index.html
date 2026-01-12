@@ -187,10 +187,10 @@
     </main>
 
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="orderModalLabel">Записаться на занятие</h5>
+                    <h5 class="modal-title" id="orderModalLabel">Оформление заявки на курс</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -199,37 +199,94 @@
                         <input type="hidden" id="order-tutor-id" name="tutor_id">
 
                         <div class="mb-3">
-                            <label for="order-full-name" class="form-label">ФИО <span
+                            <label class="form-label">Выбранный курс</label>
+                            <input type="text" class="form-control" id="order-course-name" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Преподаватель</label>
+                            <input type="text" class="form-control" id="order-tutor-name" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order-start-date" class="form-label">Дата начала курса <span
                                     class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="order-full-name" name="full_name" required>
+                            <select class="form-select" id="order-start-date" required>
+                                <option value="">Выберите дату</option>
+                            </select>
                         </div>
 
                         <div class="mb-3">
-                            <label for="order-email" class="form-label">Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="order-email" name="email" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="order-phone" class="form-label">Телефон <span
+                            <label for="order-start-time" class="form-label">Время занятий <span
                                     class="text-danger">*</span></label>
-                            <input type="tel" class="form-control" id="order-phone" name="phone" required>
+                            <select class="form-select" id="order-start-time" required disabled>
+                                <option value="">Сначала выберите дату</option>
+                            </select>
+                            <small class="form-text text-muted">Отображается время начала и окончания занятий</small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="order-date" class="form-label">Желаемая дата занятия <span
+                            <label class="form-label">Продолжительность курса</label>
+                            <input type="text" class="form-control" id="order-duration-info" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order-students-number" class="form-label">Количество студентов <span
                                     class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="order-date" name="lesson_date" required>
+                            <input type="number" class="form-control" id="order-students-number" min="1" max="20"
+                                value="1" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="order-time" class="form-label">Желаемое время <span
-                                    class="text-danger">*</span></label>
-                            <input type="time" class="form-control" id="order-time" name="lesson_time" required>
+                            <label class="form-label">Дополнительные параметры обучения</label>
+
+                            <div id="automatic-options" class="mb-2">
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="order-supplementary" value="1">
+                                <label class="form-check-label" for="order-supplementary">
+                                    Дополнительные учебные материалы (+2000₽ за студента)
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="order-personalized" value="1">
+                                <label class="form-check-label" for="order-personalized">
+                                    Индивидуальные занятия (+1500₽ за неделю)
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="order-excursions" value="1">
+                                <label class="form-check-label" for="order-excursions">
+                                    Культурные экскурсии (+25%)
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="order-assessment" value="1">
+                                <label class="form-check-label" for="order-assessment">
+                                    Оценка уровня владения языком (+300₽)
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="order-interactive" value="1">
+                                <label class="form-check-label" for="order-interactive">
+                                    Интерактивная онлайн-платформа (+50%)
+                                </label>
+                            </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="order-comment" class="form-label">Комментарий</label>
-                            <textarea class="form-control" id="order-comment" name="comment" rows="3"></textarea>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Общая стоимость</h6>
+                                    <h3 class="text-primary mb-0" id="order-total-price">0 ₽</h3>
+                                    <small class="text-muted" id="order-price-breakdown"></small>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>

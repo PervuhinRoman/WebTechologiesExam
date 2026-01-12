@@ -59,7 +59,7 @@
                         </div>
                         <div class="col-md-4">
                             <select class="form-select" id="orders-sort">
-                                <option value="date-desc">Сначала новые</option>
+                                <option value="date-desc" selected>Сначала новые</option>
                                 <option value="date-asc">Сначала старые</option>
                             </select>
                         </div>
@@ -74,6 +74,11 @@
 
                 <div id="orders-container" class="orders-container">
                 </div>
+
+                <nav id="orders-pagination" aria-label="Навигация по заявкам" style="display: none;">
+                    <ul class="pagination justify-content-center">
+                    </ul>
+                </nav>
             </div>
         </section>
     </main>
@@ -96,7 +101,7 @@
     </div>
 
     <div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editOrderModalLabel">Редактировать заявку</h5>
@@ -105,29 +110,98 @@
                 <div class="modal-body">
                     <form id="edit-order-form">
                         <input type="hidden" id="edit-order-id">
+                        <input type="hidden" id="edit-course-id">
+                        <input type="hidden" id="edit-tutor-id">
 
                         <div class="mb-3">
-                            <label for="edit-date" class="form-label">Дата начала <span
-                                    class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="edit-date" required>
+                            <label class="form-label">Курс</label>
+                            <input type="text" class="form-control" id="edit-course-name" readonly>
                         </div>
 
                         <div class="mb-3">
-                            <label for="edit-time" class="form-label">Время начала <span
-                                    class="text-danger">*</span></label>
-                            <input type="time" class="form-control" id="edit-time" required>
+                            <label class="form-label">Преподаватель</label>
+                            <input type="text" class="form-control" id="edit-tutor-name" readonly>
                         </div>
 
                         <div class="mb-3">
-                            <label for="edit-duration" class="form-label">Продолжительность (часов) <span
+                            <label for="edit-start-date" class="form-label">Дата начала курса <span
                                     class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="edit-duration" min="1" required>
+                            <select class="form-select" id="edit-start-date" required>
+                                <option value="">Выберите дату</option>
+                            </select>
                         </div>
 
                         <div class="mb-3">
-                            <label for="edit-persons" class="form-label">Количество человек <span
+                            <label for="edit-start-time" class="form-label">Время занятий <span
                                     class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="edit-persons" min="1" required>
+                            <select class="form-select" id="edit-start-time" required disabled>
+                                <option value="">Сначала выберите дату</option>
+                            </select>
+                            <small class="form-text text-muted">Отображается время начала и окончания занятий</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Продолжительность курса</label>
+                            <input type="text" class="form-control" id="edit-duration-info" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit-students-number" class="form-label">Количество студентов <span
+                                    class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="edit-students-number" min="1" max="20"
+                                value="1" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Дополнительные параметры обучения</label>
+
+                            <div id="edit-automatic-options" class="mb-2">
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="edit-supplementary" value="1">
+                                <label class="form-check-label" for="edit-supplementary">
+                                    Дополнительные учебные материалы (+2000₽ за студента)
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="edit-personalized" value="1">
+                                <label class="form-check-label" for="edit-personalized">
+                                    Индивидуальные занятия (+1500₽ за неделю)
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="edit-excursions" value="1">
+                                <label class="form-check-label" for="edit-excursions">
+                                    Культурные экскурсии (+25%)
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="edit-assessment" value="1">
+                                <label class="form-check-label" for="edit-assessment">
+                                    Оценка уровня владения языком (+300₽)
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="edit-interactive" value="1">
+                                <label class="form-check-label" for="edit-interactive">
+                                    Интерактивная онлайн-платформа (+50%)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Общая стоимость</h6>
+                                    <h3 class="text-primary mb-0" id="edit-total-price">0 ₽</h3>
+                                    <small class="text-muted" id="edit-price-breakdown"></small>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -192,6 +266,7 @@
     <script src="js/mockData.js"></script>
     <script src="js/api.js"></script>
     <script src="js/profile.js"></script>
+    <script src="js/editOrderLogic.js"></script>
 </body>
 
 </html>
