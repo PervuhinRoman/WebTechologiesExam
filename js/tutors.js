@@ -178,53 +178,6 @@ function handleTutorBooking(event) {
     modal.show();
 }
 
-document.getElementById('tutors-search-form')
-    .addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const searchQuery = document.getElementById('tutor-name-search')
-            .value.toLowerCase();
-
-        if (allTutors.length === 0) {
-            return;
-        }
-
-        filteredTutors = allTutors;
-
-        // Если выбран курс, показываем только его преподавателя
-        if (selectedCourseId) {
-            try {
-                const course = await getCourse(selectedCourseId);
-                if (course) {
-                    const courseTutor = allTutors.find(t =>
-                        t.name === course.teacher
-                    );
-                    if (courseTutor) {
-                        filteredTutors = [courseTutor];
-                    } else {
-                        // Преподаватель курса не найден - показываем всех
-                        filteredTutors = allTutors;
-                    }
-                }
-            } catch (error) {
-                console.error('Error filtering by course:', error);
-            }
-        }
-
-        if (searchQuery) {
-            filteredTutors = filteredTutors.filter(tutor => {
-                const nameMatch = tutor.name.toLowerCase()
-                    .includes(searchQuery);
-                const langMatch = tutor.languages_offered.some(
-                    lang => lang.toLowerCase().includes(searchQuery)
-                );
-                return nameMatch || langMatch;
-            });
-        }
-
-        displayTutors();
-    });
-
 document.addEventListener('DOMContentLoaded', function () {
     loadAllTutors().catch(err => {
         console.error('Failed to preload tutors:', err);
