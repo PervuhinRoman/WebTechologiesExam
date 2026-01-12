@@ -2,6 +2,8 @@ let allOrders = [];
 let filteredOrders = [];
 let currentEditOrderId = null;
 let currentDeleteOrderId = null;
+let allCoursesCache = [];
+let allTutorsCache = [];
 
 async function loadOrders() {
     const ordersContainer = document.getElementById('orders-container');
@@ -12,7 +14,18 @@ async function loadOrders() {
         ordersContainer.innerHTML = '';
 
         console.log('Loading orders...');
-        allOrders = await getOrders();
+        
+        // Загружаем все данные параллельно
+        const [orders, courses, tutors] = await Promise.all([
+            getOrders(),
+            getCourses(),
+            getTutors()
+        ]);
+        
+        allOrders = orders;
+        allCoursesCache = courses;
+        allTutorsCache = tutors;
+        
         console.log('Orders loaded:', allOrders);
 
         filteredOrders = [...allOrders];
@@ -97,23 +110,14 @@ function displayOrders() {
 
 function getCourseNameById(courseId) {
     if (courseId === 0) return 'Не указан';
-    if (typeof MOCK_COURSES === 'undefined') return 'Курс #' + courseId;
-    const course = MOCK_COURSES.find(c => c.id === courseId);
+    const course = allCoursesCache.find(c => c.id === courseId);
     return course ? course.name : 'Неизвестный курс';
 }
 
 function getTutorNameById(tutorId) {
     if (tutorId === 0) return 'Не указан';
-    if (typeof MOCK_TUTORS === 'undefined') return 'Репетитор #' + tutorId;
-    const tutor = MOCK_TUTORS.find(t => t.id === tutorId);
+    const tutor = allTutorsCache.find(t => t.id === tutorId);
     return tutor ? tutor.name : 'Неизвестный репетитор';
-}
-
-function getCourseNameById(courseId) {
-    if (courseId === 0) return 'Не указан';
-    if (typeof MOCK_COURSES === 'undefined') return 'Курс #' + courseId;
-    const course = MOCK_COURSES.find(c => c.id === courseId);
-    return course ? course.name : 'Неизвестный курс';
 }
 
 function getOptionsText(order) {

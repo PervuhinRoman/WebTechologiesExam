@@ -312,8 +312,7 @@ let MOCK_ORDERS = [
 let mockOrderIdCounter = 6;
 
 // Флаг использования mock-данных
-// Установите в false когда API будет доступно
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 async function mockApiRequest(endpoint, options = {}) {
     console.log('Mock API Request:', endpoint, options);

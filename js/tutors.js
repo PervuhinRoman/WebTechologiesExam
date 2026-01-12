@@ -1,6 +1,7 @@
 let allTutors = [];
 let filteredTutors = [];
 let selectedCourseId = null;
+let warningMessage = '';
 
 async function loadAllTutors() {
     try {
@@ -22,6 +23,7 @@ async function loadTutorsForCourse(courseId) {
         selectedCourseId = courseId;
         loadingSpinner.style.display = 'block';
         tutorsContainer.innerHTML = '';
+        warningMessage = '';
 
         console.log('Loading all tutors for course:', courseId);
 
@@ -29,31 +31,40 @@ async function loadTutorsForCourse(courseId) {
             await loadAllTutors();
         }
 
-        const course = MOCK_COURSES.find(c => c.id === parseInt(courseId));
+        const course = await getCourse(courseId);
 
         if (!course) {
             console.error('Course not found');
             filteredTutors = allTutors;
         } else {
+            // Показываем только преподавателя, назначенного на курс
+            // NOTE: Если бы в API было отдельное поле "language" для курса,
+            // можно было бы реализовать продвинутую фильтрацию:
+            // показывать всех преподавателей, которые предлагают этот язык
             const courseTutor = allTutors.find(t =>
                 t.name === course.teacher
             );
 
             if (courseTutor) {
-                filteredTutors = allTutors.filter(tutor => {
-                    return courseTutor.languages_offered.some(courseLang =>
-                        tutor.languages_offered.some(tutorLang =>
-                            tutorLang === courseLang
-                        )
-                    );
-                });
-
+                filteredTutors = [courseTutor];
                 console.log('Course:', course.name,
-                    'Teacher:', course.teacher,
-                    'Languages:', courseTutor.languages_offered,
-                    'Filtered tutors count:', filteredTutors.length);
+                    'Teacher:', course.teacher);
             } else {
                 console.warn('Course teacher not found in tutors list');
+                // Показываем предупреждение и всех доступных преподавателей
+                warningMessage = `
+                    <div class="col-12">
+                        <div class="alert alert-warning" role="alert">
+                            <strong>Преподаватель не найден</strong>
+                            <p class="mb-0">
+                                Преподаватель "${course.teacher}" 
+                                для курса "${course.name}" 
+                                не найден в базе данных. 
+                                Показаны все доступные преподаватели.
+                            </p>
+                        </div>
+                    </div>
+                `;
                 filteredTutors = allTutors;
             }
         }
@@ -87,7 +98,7 @@ function displayTutors() {
     });
 
     if (filteredTutors.length === 0) {
-        tutorsContainer.innerHTML = `
+        tutorsContainer.innerHTML = warningMessage + `
             <div class="col-12">
                 <p class="text-center text-muted">
                     Репетиторов для этого курса не найдено
@@ -97,7 +108,7 @@ function displayTutors() {
         return;
     }
 
-    tutorsContainer.innerHTML = filteredTutors.map(tutor => `
+    tutorsContainer.innerHTML = warningMessage + filteredTutors.map(tutor => `
         <div class="col-md-6 col-lg-4">
             <div class="tutor-card">
                 <div class="tutor-header">
@@ -168,7 +179,7 @@ function handleTutorBooking(event) {
 }
 
 document.getElementById('tutors-search-form')
-    .addEventListener('submit', function (e) {
+    .addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const searchQuery = document.getElementById('tutor-name-search')
@@ -178,31 +189,38 @@ document.getElementById('tutors-search-form')
             return;
         }
 
-        filteredTutors = allTutors.filter(tutor => {
-            if (selectedCourseId) {
-                const course = MOCK_COURSES.find(
-                    c => c.id === parseInt(selectedCourseId)
-                );
+        filteredTutors = allTutors;
+
+        // Если выбран курс, показываем только его преподавателя
+        if (selectedCourseId) {
+            try {
+                const course = await getCourse(selectedCourseId);
                 if (course) {
-                    const courseLanguage = course.name.split(' ')[0];
-                    const matchesCourse = tutor.languages_offered.some(
-                        lang => lang.toLowerCase()
-                            .includes(courseLanguage.toLowerCase())
+                    const courseTutor = allTutors.find(t =>
+                        t.name === course.teacher
                     );
-                    if (!matchesCourse) return false;
+                    if (courseTutor) {
+                        filteredTutors = [courseTutor];
+                    } else {
+                        // Преподаватель курса не найден - показываем всех
+                        filteredTutors = allTutors;
+                    }
                 }
+            } catch (error) {
+                console.error('Error filtering by course:', error);
             }
+        }
 
-            if (!searchQuery) return true;
-
-            const nameMatch = tutor.name.toLowerCase()
-                .includes(searchQuery);
-            const langMatch = tutor.languages_offered.some(
-                lang => lang.toLowerCase().includes(searchQuery)
-            );
-
-            return nameMatch || langMatch;
-        });
+        if (searchQuery) {
+            filteredTutors = filteredTutors.filter(tutor => {
+                const nameMatch = tutor.name.toLowerCase()
+                    .includes(searchQuery);
+                const langMatch = tutor.languages_offered.some(
+                    lang => lang.toLowerCase().includes(searchQuery)
+                );
+                return nameMatch || langMatch;
+            });
+        }
 
         displayTutors();
     });
