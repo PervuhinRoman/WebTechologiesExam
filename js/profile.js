@@ -423,6 +423,17 @@ document.getElementById('orders-sort')
 document.getElementById('confirm-delete-btn')
     .addEventListener('click', deleteOrderConfirmed);
 
+// Обработчик закрытия модального окна - очистка backdrop
+document.getElementById('deleteOrderModal')
+    .addEventListener('hidden.bs.modal', function () {
+        // Принудительная очистка backdrop и восстановление прокрутки
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    });
+
 function showNotification(message, type = 'info') {
     const notificationArea = document.getElementById('notification-area');
 

@@ -238,6 +238,8 @@ function calculateEditTotalPrice() {
 
     // Детализация
     const breakdown = buildEditPriceBreakdown(
+        courseFeePerHour,
+        durationInHours,
         basePrice,
         morningSurcharge,
         eveningSurcharge,
@@ -245,7 +247,13 @@ function calculateEditTotalPrice() {
         isWeekendOrHoliday,
         isEarlyRegistration,
         isGroupEnrollment,
-        isIntensiveCourse
+        isIntensiveCourse,
+        document.getElementById('edit-supplementary').checked,
+        document.getElementById('edit-personalized').checked,
+        document.getElementById('edit-excursions').checked,
+        document.getElementById('edit-assessment').checked,
+        document.getElementById('edit-interactive').checked,
+        editCurrentCourse.total_length
     );
     document.getElementById('edit-price-breakdown').innerHTML = breakdown;
 }
@@ -282,33 +290,176 @@ function displayEditAutomaticOptions(early, group, intensive) {
 }
 
 function buildEditPriceBreakdown(
-    base,
+    feePerHour,
+    totalHours,
+    basePriceAfterWeekend,
     morning,
     evening,
     students,
-    isWeekend,
+    weekendMultiplier,
     earlyDiscount,
     groupDiscount,
-    intensive
+    intensive,
+    supplementary,
+    personalized,
+    excursions,
+    assessment,
+    interactive,
+    totalWeeks
 ) {
-    const parts = [];
-
-    if (isWeekend > 1) {
-        parts.push('выходной день');
-    }
-    if (morning > 0) {
-        parts.push('утреннее время');
-    }
-    if (evening > 0) {
-        parts.push('вечернее время');
-    }
-    if (students > 1) {
-        parts.push(`${students} студентов`);
-    }
-
-    let text = parts.length > 0 ? parts.join(', ') : 'базовая цена';
+    let html = '<div class="price-calculation" ' +
+        'style="font-size: 0.9em; line-height: 1.6;">';
     
-    return `Учтены: ${text}`;
+    // Шаг 1: Базовая стоимость
+    const baseBeforeWeekend = feePerHour * totalHours;
+    html += `<div><strong>1. Базовая стоимость:</strong></div>`;
+    html += `<div class="ms-3">` +
+        `${feePerHour}₽/час × ${totalHours}ч = ` +
+        `${baseBeforeWeekend.toLocaleString('ru-RU')}₽</div>`;
+    
+    // Шаг 2: Множитель за выходные
+    if (weekendMultiplier > 1) {
+        html += `<div class="mt-2"><strong>2. Выходной день:</strong></div>`;
+        html += `<div class="ms-3">` +
+            `${baseBeforeWeekend.toLocaleString('ru-RU')}₽ × 1.5 = ` +
+            `${basePriceAfterWeekend.toLocaleString('ru-RU')}₽</div>`;
+    } else {
+        html += `<div class="mt-2"><strong>2. Будний день:</strong> ` +
+            `множитель 1</div>`;
+    }
+    
+    // Шаг 3: Доплаты за время
+    let currentPrice = basePriceAfterWeekend;
+    if (morning > 0 || evening > 0) {
+        html += `<div class="mt-2">` +
+            `<strong>3. Доплаты за время:</strong></div>`;
+        if (morning > 0) {
+            html += `<div class="ms-3">Утро (9:00-12:00): +${morning}₽</div>`;
+        }
+        if (evening > 0) {
+            html += `<div class="ms-3">` +
+                `Вечер (18:00-20:00): +${evening}₽</div>`;
+        }
+    }
+    
+    // Шаг 4: Умножение на количество студентов
+    const beforeStudents = currentPrice + morning + evening;
+    html += `<div class="mt-2">` +
+        `<strong>4. На количество студентов:</strong></div>`;
+    html += `<div class="ms-3">` +
+        `(${basePriceAfterWeekend.toLocaleString('ru-RU')}₽`;
+    if (morning > 0) html += ` + ${morning}₽`;
+    if (evening > 0) html += ` + ${evening}₽`;
+    html += `) × ${students} = ` +
+        `${(beforeStudents * students).toLocaleString('ru-RU')}₽</div>`;
+    
+    currentPrice = beforeStudents * students;
+    
+    // Шаг 5: Автоматические надбавки
+    if (intensive) {
+        html += `<div class="mt-2">` +
+            `<strong>5. Интенсивный курс:</strong> +20%</div>`;
+        const after = currentPrice * 1.2;
+        html += `<div class="ms-3">` +
+            `${currentPrice.toLocaleString('ru-RU')}₽ × 1.2 = ` +
+            `${Math.round(after).toLocaleString('ru-RU')}₽</div>`;
+        currentPrice = after;
+    }
+    
+    // Шаг 6: Дополнительные опции
+    let hasOptions = false;
+    let optionsStep = intensive ? 6 : 5;
+    
+    if (supplementary) {
+        if (!hasOptions) {
+            html += `<div class="mt-2">` +
+                `<strong>${optionsStep}. Доп. опции:</strong></div>`;
+            hasOptions = true;
+        }
+        const amount = 2000 * students;
+        html += `<div class="ms-3">` +
+            `Учебные материалы: +${amount.toLocaleString('ru-RU')}₽</div>`;
+        currentPrice += amount;
+    }
+    
+    if (personalized) {
+        if (!hasOptions) {
+            html += `<div class="mt-2">` +
+                `<strong>${optionsStep}. Доп. опции:</strong></div>`;
+            hasOptions = true;
+        }
+        const amount = 1500 * totalWeeks;
+        html += `<div class="ms-3">` +
+            `Индивид. занятия: +${amount.toLocaleString('ru-RU')}₽</div>`;
+        currentPrice += amount;
+    }
+    
+    if (excursions) {
+        if (!hasOptions) {
+            html += `<div class="mt-2">` +
+                `<strong>${optionsStep}. Доп. опции:</strong></div>`;
+            hasOptions = true;
+        }
+        const before = currentPrice;
+        currentPrice *= 1.25;
+        html += `<div class="ms-3">` +
+            `Экскурсии: +25% ` +
+            `(${Math.round(currentPrice - before).toLocaleString('ru-RU')}₽)` +
+            `</div>`;
+    }
+    
+    if (assessment) {
+        if (!hasOptions) {
+            html += `<div class="mt-2">` +
+                `<strong>${optionsStep}. Доп. опции:</strong></div>`;
+            hasOptions = true;
+        }
+        html += `<div class="ms-3">Оценка уровня: +300₽</div>`;
+        currentPrice += 300;
+    }
+    
+    if (interactive) {
+        if (!hasOptions) {
+            html += `<div class="mt-2">` +
+                `<strong>${optionsStep}. Доп. опции:</strong></div>`;
+            hasOptions = true;
+        }
+        const before = currentPrice;
+        currentPrice *= 1.5;
+        html += `<div class="ms-3">` +
+            `Интер. платформа: +50% ` +
+            `(${Math.round(currentPrice - before).toLocaleString('ru-RU')}₽)` +
+            `</div>`;
+    }
+    
+    // Шаг 7: Скидки (применяются последними)
+    if (earlyDiscount || groupDiscount) {
+        let discountStep = optionsStep + (hasOptions ? 1 : 0);
+        html += `<div class="mt-2">` +
+            `<strong>${discountStep}. Скидки:</strong></div>`;
+        
+        if (earlyDiscount) {
+            const before = currentPrice;
+            currentPrice *= 0.9;
+            html += `<div class="ms-3">` +
+                `Ранняя регистрация: -10% ` +
+                `(-${Math.round(before - currentPrice)
+                    .toLocaleString('ru-RU')}₽)</div>`;
+        }
+        
+        if (groupDiscount) {
+            const before = currentPrice;
+            currentPrice *= 0.85;
+            html += `<div class="ms-3">` +
+                `Групповая запись: -15% ` +
+                `(-${Math.round(before - currentPrice)
+                    .toLocaleString('ru-RU')}₽)</div>`;
+        }
+    }
+    
+    html += '</div>';
+    
+    return html;
 }
 
 // Event Listeners для формы редактирования
@@ -443,3 +594,14 @@ async function saveEditedOrder() {
 // Event listener для кнопки сохранения
 document.getElementById('save-order-btn')
     .addEventListener('click', saveEditedOrder);
+
+// Обработчик закрытия модального окна - очистка backdrop
+document.getElementById('editOrderModal')
+    .addEventListener('hidden.bs.modal', function () {
+        // Принудительная очистка backdrop и восстановление прокрутки
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    });
