@@ -14,18 +14,18 @@ async function loadOrders() {
         ordersContainer.innerHTML = '';
 
         console.log('Loading orders...');
-        
+
         // Загружаем все данные параллельно
         const [orders, courses, tutors] = await Promise.all([
             getOrders(),
             getCourses(),
             getTutors()
         ]);
-        
+
         allOrders = orders;
         allCoursesCache = courses;
         allTutorsCache = tutors;
-        
+
         console.log('Orders loaded:', allOrders);
 
         filteredOrders = [...allOrders];
